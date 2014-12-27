@@ -1,0 +1,26 @@
+{
+  "name": "gustave",
+  "version": "0.1.0",
+
+  "description": "gustave the majordome",
+
+  "author": "Platane <me@platane.me>",
+
+  "dependencies": {
+    "promise" : "*",
+    "express" : "*",
+    "request" : "*",
+    "xml2js" : "*"
+   },
+
+    "devDependencies" : {
+        "jasmine-node" : "git://github.com/mhevery/jasmine-node.git#Jasmine2.0",
+        "browserify" : "*",
+        "less" :"*",
+        "gulp" : "*",
+        "gulp-watch" : "*",
+        "gulp-autoprefixer" : "*",
+        "gulp-rename" : "*",
+        "gulp-browserify" : "*"
+    }
+}
