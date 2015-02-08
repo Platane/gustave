@@ -7,6 +7,7 @@ var tr_model = Object.create( TransmissionModel ).syncStatus()
 
 var button = document.querySelector('.switch')
 var explaination = document.querySelector('.explaination')
+var metrics = document.querySelector('.metrics')
 
 dom.bind( button, 'click', function(){
     tr_model.stop();
@@ -22,6 +23,7 @@ tr_model.listen(function(){
         var min = Math.round( (tr_model.status.planned_restart-Date.now()) / 60000 )
         explaination.innerHTML = '<p>The transfert is currently paused, it will restart in '+min+' minutes</p><p>click the button to stop the transfert for one hour more</p>'
     }
+    metrics.innerHTML = 'speed: '+tr_model.status.global_up+'B/s up   -   '+tr_model.status.global_down+'B/s down'
 })
 
 

@@ -3,13 +3,16 @@ var fs = require('fs')
   , express = require('express')
   , request = require('request')
   , killTransmission = require('./kill-transmission')
+  , sorttv = require('./sorttv')
   , scanRSS = require('./scan-RSS')
   , Transmission = require('./transmission')
+  , Kodi = require('./kodi')
 
 var config = JSON.parse( fs.readFileSync('./config.json') );
 
 
 var transmission = Object.create( Transmission ).init( config.transmission )
+var kodi = Object.create( Kodi ).init( config.kodi )
 
 
 var analyzeAllRSS = (function(){
@@ -52,16 +55,33 @@ var analyzeAllRSS = (function(){
 
 })()
 
+var scan = function(){
+    return sorttv.crawl()
+    .then( kodi.scan() )
+}
+
 
 var grabEvents = function( patch ){
     return patch
 }
 
+var k=0
 ;(function cycle(){
 
-    transmission.refreshTorrentList()
+    console.log('cycle')
+
+    var p = transmission.refreshTorrentList()
     .then( grabEvents )
     .then( analyzeAllRSS.bind(null, config.RSS ) )
+
+
+    if ( k++ > 10 )
+    {
+        k=0
+        p.then( scan() )
+    }
+
+    p
     .then( function(){
         setTimeout(cycle, config.pooling_delay)
     })
@@ -95,7 +115,7 @@ var status = function(){
 }
 
 var app = express()
-var DIR = process.mainModule.filename.split('\\').slice(0,-1).join('\\')
+var DIR = process.mainModule.filename.substr(0,-6)
 
 app.get("/transmission/start", function(req, res){
     restart()
@@ -122,10 +142,10 @@ app.get("/transmission/status", function(req, res){
 
 
 app.get("/", function(req, res){
-    res.status(200).sendFile(DIR+'\\front\\index.html');
+    res.status(200).sendFile(DIR+'front/index.html');
 })
 app.get("/bundle.js", function(req, res){
-    res.status(200).sendFile(DIR+'\\front\\bundle.js');
+    res.status(200).sendFile(DIR+'front/bundle.js');
 })
 app.get("/bundle.css", function(req, res){
     res.status(200).sendFile(DIR+'\\front\\bundle.css');
