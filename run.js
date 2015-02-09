@@ -8,7 +8,8 @@ var fs = require('fs')
   , Kodi = require('./kodi')
   , historyL = require('./historyL')
 
-var config = JSON.parse( fs.readFileSync('./config.json') );
+var DIR = process.mainModule.filename.slice(0,-6)
+var config = JSON.parse( fs.readFileSync(DIR+'config.json') );
 
 
 var transmission = Object.create( Transmission ).init( config.transmission )

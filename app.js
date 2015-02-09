@@ -68,7 +68,7 @@ app.get("/bundle.js", function(req, res){
     res.status(200).sendFile(DIR+'front/bundle.js');
 })
 app.get("/bundle.css", function(req, res){
-    res.status(200).sendFile(DIR+'\\front\\bundle.css');
+    res.status(200).sendFile(DIR+'front/bundle.css');
 })
 
 
