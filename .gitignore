@@ -2,3 +2,5 @@
 node_modules
 npm-debug.log
 Thumbs.db
+front/bundle.js
+front/bundle.css

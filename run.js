@@ -1,12 +1,12 @@
 var fs = require('fs')
   , Promise = require('promise')
-  , express = require('express')
   , request = require('request')
   , killTransmission = require('./kill-transmission')
   , sorttv = require('./sorttv')
   , scanRSS = require('./scan-RSS')
   , Transmission = require('./transmission')
   , Kodi = require('./kodi')
+  , historyL = require('./historyL')
 
 var config = JSON.parse( fs.readFileSync('./config.json') );
 
@@ -14,24 +14,52 @@ var config = JSON.parse( fs.readFileSync('./config.json') );
 var transmission = Object.create( Transmission ).init( config.transmission )
 var kodi = Object.create( Kodi ).init( config.kodi )
 
+transmission.startAll()
 
 var analyzeAllRSS = (function(){
 
+    var aSimilarTob = function( a,b ){
+        return b.name.indexOf( a.name )>=0
+    }
+
+    // flatten the torrent list into something more comprehensive
+    // also discard some duplicated entries
     var extractList = function( jrss ){
+
+        // wahtever the rss always contains one channel
         return jrss.rss.channel.reduce(function(prev, c){
-            return prev.concat(c.item.map(function(c){
+
+            // flatten
+            var arr = c.item
+            .map(function(c){
                 return {
                     link: c.link[0],
                     name: c.title[0]
                 }
-            }))
+            })
+
+            // sometimes the rss contains two torrents for one show ( full hd and not full hd )
+            // title are "xxx" and "xxx 720p"
+            // keep only the 720p ( lets say its the one with the longest title )
+            var arr2 = arr.filter(function(c){
+
+                var similar = arr.filter( aSimilarTob.bind( null, c ))
+
+                return similar.length>1
+            })
+
+            return prev.concat( arr2 )
         },[])
     }
 
+    // check if the torrent is suitable, then add it with transmission
     var withList = function( list ){
         for( var i=list.length;i--;)
-            if( !transmission.hasTorrent( list[i] ))
+            if( !historyL.inList( list[i].name ) && !transmission.hasTorrent( list[i] ))
+            {
                 transmission.addTorrent( list[i] )
+                historyL.write( list[i].name )
+            }
     }
 
     var i,rss;
@@ -65,10 +93,15 @@ var grabEvents = function( patch ){
     return patch
 }
 
-var k=0
+var timeStamp = function( d ){
+    d = new Date( d || Date.now() )
+    return d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()+' '+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear()
+}
+
+var k=100
 ;(function cycle(){
 
-    console.log('cycle')
+    console.log('---   cycle '+timeStamp())
 
     var p = transmission.refreshTorrentList()
     .then( grabEvents )
@@ -78,6 +111,7 @@ var k=0
     if ( k++ > 10 )
     {
         k=0
+        console.log('---   scan')
         p.then( scan() )
     }
 
@@ -89,67 +123,4 @@ var k=0
 
 })()
 
-
-
-var timeout, planned_restart=0;
-var pauseForADelay = function(){
-    planned_restart = Date.now() + config.pause_delay
-    timeout = void clearTimeout( timeout )
-    timeout = setTimeout( restart, config.pause_delay  )
-    return transmission.pauseAll()
-}
-var restart = function(){
-    planned_restart = 0
-    timeout = void clearTimeout( timeout )
-    return transmission.startAll()
-}
-var status = function(){
-    return transmission.refreshStatus()
-    .then(function(){
-        var o = {}
-        for(var p in transmission.status )
-            o[p] = transmission.status[p]
-        o.planned_restart = planned_restart
-        return o
-    })
-}
-
-var app = express()
-var DIR = process.mainModule.filename.substr(0,-6)
-
-app.get("/transmission/start", function(req, res){
-    restart()
-    .then( status )
-    .then( function(x){
-        res.send(x)
-    })
-})
-
-app.get("/transmission/stop", function(req, res){
-    pauseForADelay()
-    .then( status )
-    .then( function(x){
-        res.send(x)
-    })
-})
-
-app.get("/transmission/status", function(req, res){
-    status()
-    .then( function(x){
-        res.send(x)
-    })
-})
-
-
-app.get("/", function(req, res){
-    res.status(200).sendFile(DIR+'front/index.html');
-})
-app.get("/bundle.js", function(req, res){
-    res.status(200).sendFile(DIR+'front/bundle.js');
-})
-app.get("/bundle.css", function(req, res){
-    res.status(200).sendFile(DIR+'\\front\\bundle.css');
-})
-
-
-app.listen( config.port )
+require('./app')( config, transmission, kodi )

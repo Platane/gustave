@@ -1,9 +1,0 @@
-.switch {
-  width: 400px;
-  height: 200px;
-  background: #31B64C;
-  cursor: pointer;
-}
-.switch.paused {
-  background: #888;
-}

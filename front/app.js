@@ -4,6 +4,23 @@ var dom = require('./domHelper')
 var tr_model = Object.create( TransmissionModel ).syncStatus()
 
 
+var bigNumber = (function(){
+    var r = [ '', 'K', 'M', 'T', 'P' ]
+    var base = 1000
+    var ndec = 2
+    return function( x ){
+        var e = x
+        for( var k=0; e > 800; e /= base )
+            k++
+
+        var dec = (e%1)+''
+        while( dec.length < ndec )
+            dec+='0'
+
+        return (0|e)+'.'+dec+r[k]
+    }
+})()
+
 
 var button = document.querySelector('.switch')
 var explaination = document.querySelector('.explaination')
@@ -23,7 +40,7 @@ tr_model.listen(function(){
         var min = Math.round( (tr_model.status.planned_restart-Date.now()) / 60000 )
         explaination.innerHTML = '<p>The transfert is currently paused, it will restart in '+min+' minutes</p><p>click the button to stop the transfert for one hour more</p>'
     }
-    metrics.innerHTML = 'speed: '+tr_model.status.global_up+'B/s up   -   '+tr_model.status.global_down+'B/s down'
+    metrics.innerHTML = 'speed: '+bigNumber(tr_model.status.global_up)+'B/s up   -   '+bigNumber(tr_model.status.global_down)+'B/s down'
 })
 
 
@@ -31,7 +48,7 @@ tr_model.listen(function(){
 var prevDate = 0
 ;(function cycle(){
 
-    if( Date.now() - prevDate > 1000 ){
+    if( Date.now() - prevDate > 2000 ){
         tr_model.syncStatus()
         prevDate = Date.now()
     }

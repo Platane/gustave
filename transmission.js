@@ -147,6 +147,12 @@ var hasTorrent = function( torrent ){
 }
 var addTorrent = function( torrent ){
     console.log( 'add '+torrent.name )
+    return trReq.call(this,{
+        "method": "torrent-add",
+        "arguments" : {
+            "filename": torrent.link
+        }
+    })
 }
 var pauseAll = function(){
     var that = this

@@ -3,14 +3,18 @@ module.exports = {
 		return el.classList.contains(c)
 	},
 	addClass : function( el , c ){
-		el.className += ' '+c
+        if( !this.hasClass( el, c ) )
+		      el.setAttribute('class', el.getAttribute('class') +' '+ c )
 	},
 	removeClass : function( el , c ){
-		var nc=""
-		for(var i=el.classList.length;i--; )
-			if( c != el.classList[i] )
-				nc += ' '+el.classList[i]
-		el.className = nc
+        if( !this.hasClass( el, c ) )
+            return
+		var nc = ''
+        var cs = el.getAttribute('class').trim().split(' ')
+		for(var i=cs.length;i--; )
+			if( c != cs[i] )
+				nc += ' '+cs[i]
+        el.setAttribute('class', nc )
 	},
 	getParent : function( el , c ){
 		while(true)
@@ -20,6 +24,20 @@ module.exports = {
 				break;
 		return el
 	},
+    offset : function( el ){
+        // TODO consider scroll
+        var o = {
+            left:0,
+            top:0
+        }
+        while( el && el.offsetLeft !== null){
+            o.left += el.offsetLeft
+            o.top += el.offsetTop
+
+            el = el.parentElement
+        }
+        return o
+    },
 	bind : function( el , eventName , fn ){
 
 		var l = eventName.split(' ')
