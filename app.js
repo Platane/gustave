@@ -1,7 +1,7 @@
 var express = require('express')
   , sorttv = require('./sorttv')
 
-module.exports = function init ( config, transmission, kodi ){
+module.exports = function init ( config, transmission, kodi, scan ){
 
 
 var timeStamp = function( d ){
@@ -28,6 +28,8 @@ var status = function(){
         var o = {}
         for(var p in transmission.status )
             o[p] = transmission.status[p]
+        for(var p in scan.status )
+            o[p] = scan.status[p]
         o.planned_restart = planned_restart
         return o
     })
@@ -60,10 +62,12 @@ app.get("/transmission/status", function(req, res){
 })
 
 app.get("/kodi/scan", function(req, res){
-    console.log('---   manul scan '+timeStamp())
-    res.send()
-    sorttv.crawl()
-    .then( kodi.scan() )
+    console.log('---   manual scan '+timeStamp())
+    scan.scan()
+    status()
+    .then( function(x){
+        res.send(x)
+    })
 })
 
 

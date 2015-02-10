@@ -2,10 +2,11 @@ var fs = require('fs')
   , Promise = require('promise')
   , request = require('request')
   , killTransmission = require('./kill-transmission')
-  , sorttv = require('./sorttv')
+  , sorttv = require('./scan')
   , scanRSS = require('./scan-RSS')
   , Transmission = require('./transmission')
   , Kodi = require('./kodi')
+  , Scan = require('./historyL')
   , historyL = require('./historyL')
 
 var DIR = process.mainModule.filename.slice(0,-6)
@@ -14,6 +15,8 @@ var config = JSON.parse( fs.readFileSync(DIR+'config.json') );
 
 var transmission = Object.create( Transmission ).init( config.transmission )
 var kodi = Object.create( Kodi ).init( config.kodi )
+var scan = Object.create( Scan ).init( kodi )
+
 
 transmission.startAll()
 
@@ -84,11 +87,6 @@ var analyzeAllRSS = (function(){
 
 })()
 
-var scan = function(){
-    return sorttv.crawl()
-    .then( kodi.scan() )
-}
-
 
 var grabEvents = function( patch ){
     return patch
@@ -112,8 +110,7 @@ var k=100
     if ( k++ > 2 )
     {
         k=0
-        console.log('---   scan')
-        p.then( scan() )
+        p.then( scan.scan() )
     }
 
     p

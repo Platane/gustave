@@ -27,6 +27,7 @@ var button = document.querySelector('.switch')
 var explaination = document.querySelector('.explaination')
 var metrics = document.querySelector('.metrics')
 var scanNow = document.querySelector('.scan-now')
+var scanState = document.querySelector('.scan-state')
 
 dom.bind( button, 'click', function(){
     tr_model.stop();
@@ -42,12 +43,20 @@ tr_model.listen(function(){
         var min = Math.round( (tr_model.status.planned_restart-Date.now()) / 60000 )
         explaination.innerHTML = '<p>The transfert is currently paused, it will restart in '+min+' minutes</p><p>click the button to stop the transfert for one hour more</p>'
     }
-    metrics.innerHTML = 'speed: '+bigNumber(tr_model.status.global_up)+'B/s up   -   '+bigNumber(tr_model.status.global_down)+'B/s down'
+
 })
 
 scanNow.addEventListener('click',function(){
     transport.get('/kodi/scan')
 })
+tr_model.listen(function(){
+    metrics.innerHTML = 'speed: '+bigNumber(tr_model.status.global_up)+'B/s up   -   '+bigNumber(tr_model.status.global_down)+'B/s down'
+})
+tr_model.listen(function(){
+    scanState.innerHTML = tr_model.status.scanState
+})
+
+
 
 
 var prevDate = 0
