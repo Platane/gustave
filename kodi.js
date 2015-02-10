@@ -1,49 +1,35 @@
-var request = require('request')
-  , Promise = require('promise')
-
-
-var trReq = function( req, retry ){
-    var that = this
-    var uri = 'http://'+this.config.host+':'+this.config.port+'/jsonrpc'
-
-    if( retry > 5 )
-        return Promise.reject('max retry')
-
-    return new Promise(function(resolve, reject){
-        request({
-            method: 'POST',
-            uri: uri,
-            json: true,
-            body: req,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            timeout : 20000
-        },
-        function(err, response, body){
-            if( err )
-                return reject( err )
-
-            if( response.statusCode == 200 )
-                return resolve( body )
-
-            return reject( response )
-        })
-
-    })
-}
+var Promise = require('promise')
+  , io = require('socket.io-client')
+  , eventEmitter = require('events').EventEmitter
 
 
 var init = function( config ){
-    this.config = config
+
+    eventEmitter.call( this )
+    for( var i in eventEmitter )
+      this[ i ] = eventEmitter[ i ]
+
+    var uri = 'http://'+config.host+':'+config.port+'/jsonrpc'
+
+    this.socket = io( uri )
+
+
+    this.socket
+    .on('VideoLibrary.OnUpdate', relayEvent.bind( this, 'VideoLibrary.OnUpdate') )
 
     return this
+}
+
+var scan = function(){
+    this.socket.emit( 'VideoLibrary.Scan' )
+}
+var relayEvent = function( eventName, data ){
+    this.dispatch( eventName , data )
 }
 
 
 
 module.exports = {
     init: init,
-
-    scan: function(){ return trReq.call(this, {'method': 'VideoLibrary.Scan'}) }
+    scan: scan
 }

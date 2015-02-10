@@ -15,7 +15,7 @@ var config = JSON.parse( fs.readFileSync(DIR+'config.json') );
 
 var transmission = Object.create( Transmission ).init( config.transmission )
 var kodi = Object.create( Kodi ).init( config.kodi )
-var scan = Object.create( Scan ).init( kodi )
+//var scan = Object.create( Scan ).init( kodi )
 
 
 transmission.startAll()
@@ -110,7 +110,7 @@ var k=100
     if ( k++ > 2 )
     {
         k=0
-        p.then( scan.scan() )
+        //p.then( scan.scan() )
     }
 
     p

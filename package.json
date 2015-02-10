@@ -10,6 +10,8 @@
     "promise" : "*",
     "express" : "*",
     "request" : "*",
+    "socket.io" : "*",
+    "socket.io-client" : "*",
     "xml2js" : "*"
    },
 

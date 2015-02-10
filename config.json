@@ -9,7 +9,7 @@
         "pass": "b4DJz884%71jGPi"
     },
     "kodi" : {
-        "host" : "localhost",
+        "host" : "192.168.1.5",
         "port" : 9090
     },
     "showRss": {
