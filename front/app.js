@@ -1,5 +1,6 @@
 var dom = require('./domHelper')
   , TransmissionModel = require('./TransmissionModel')
+  , transport = require('./transport')
 
 var tr_model = Object.create( TransmissionModel ).syncStatus()
 
@@ -25,6 +26,7 @@ var bigNumber = (function(){
 var button = document.querySelector('.switch')
 var explaination = document.querySelector('.explaination')
 var metrics = document.querySelector('.metrics')
+var scanNow = document.querySelector('.scan-now')
 
 dom.bind( button, 'click', function(){
     tr_model.stop();
@@ -43,6 +45,9 @@ tr_model.listen(function(){
     metrics.innerHTML = 'speed: '+bigNumber(tr_model.status.global_up)+'B/s up   -   '+bigNumber(tr_model.status.global_down)+'B/s down'
 })
 
+scanNow.addEventListener('click',function(){
+    transport.get('/kodi/scan')
+})
 
 
 var prevDate = 0

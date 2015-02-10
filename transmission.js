@@ -3,6 +3,12 @@ var xml2js = require('xml2js').parseString
   , Promise = require('promise')
 
 
+var timeStamp = function( d ){
+    d = new Date( d || Date.now() )
+    return d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()+' '+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear()
+}
+
+
 var trReq = function( req, retry ){
     var that = this
     var uri = 'http://'+this.config.host+':'+this.config.port+'/transmission/rpc/'
@@ -155,6 +161,7 @@ var addTorrent = function( torrent ){
     })
 }
 var pauseAll = function(){
+    console.log('--- transmission pause '+timeStamp())
     var that = this
     return trReq.call(this,{
         "method": "torrent-stop"
@@ -164,6 +171,7 @@ var pauseAll = function(){
     })
 }
 var startAll = function(){
+    console.log('--- transmission restart '+timeStamp())
     var that = this
     return trReq.call(this,{
         "method": "torrent-start"

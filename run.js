@@ -109,7 +109,7 @@ var k=100
     .then( analyzeAllRSS.bind(null, config.RSS ) )
 
 
-    if ( k++ > 10 )
+    if ( k++ > 2 )
     {
         k=0
         console.log('---   scan')
@@ -120,7 +120,12 @@ var k=100
     .then( function(){
         setTimeout(cycle, config.pooling_delay)
     })
-    .then(null, console.log.bind(console))
+    .then(null, function(err){
+        console.log(err)
+
+        // continue to cycle no matter what
+        setTimeout(cycle, config.pooling_delay)
+    })
 
 })()
 

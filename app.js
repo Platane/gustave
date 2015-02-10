@@ -1,4 +1,5 @@
 var express = require('express')
+  , sorttv = require('./sorttv')
 
 module.exports = function init ( config, transmission, kodi ){
 
@@ -36,7 +37,6 @@ var app = express()
 var DIR = process.mainModule.filename.slice(0,-6)
 
 app.get("/transmission/start", function(req, res){
-    console.log('--- transmission restart '+timeStamp())
     restart()
     .then( status )
     .then( function(x){
@@ -45,7 +45,6 @@ app.get("/transmission/start", function(req, res){
 })
 
 app.get("/transmission/stop", function(req, res){
-    console.log('--- transmission paused '+timeStamp())
     pauseForADelay()
     .then( status )
     .then( function(x){
@@ -58,6 +57,13 @@ app.get("/transmission/status", function(req, res){
     .then( function(x){
         res.send(x)
     })
+})
+
+app.get("/kodi/scan", function(req, res){
+    console.log('---   manul scan '+timeStamp())
+    res.send()
+    sorttv.crawl()
+    .then( kodi.scan() )
 })
 
 
