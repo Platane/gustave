@@ -8,7 +8,7 @@ module.exports = function exec ( cmd, options ){
 
         // monitor the error and standard output stream
         var buffer = []
-        , stderr = ''
+          , stderr = ''
 
         proc.stdout.on('data', function (data) {
             buffer.push( data )
@@ -24,13 +24,13 @@ module.exports = function exec ( cmd, options ){
             if (code !== 0 || signal !== null)
                 return reject({signal: signal, code: code, sterr: stderr})
 
-                // is ok
-                resolve( buffer )
-            })
-            .on('error', function(err){
-                return reject({code: err, sterr: stderr})
-            });
-
-            proc.stdin.end()
+            // is ok
+            resolve( buffer )
         })
-    }
+        .on('error', function(err){
+            return reject({code: err, sterr: stderr})
+        });
+
+        proc.stdin.end()
+    })
+}

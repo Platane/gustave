@@ -17,10 +17,10 @@ var enable = function( ){
 
     this._chain = input( transmission, 'download-finished' )
 
-    .trueOrWait(function(){ return sorttv.status.scaning }, sorttv, 'scan-end' )
+    .trueOrWait(function(){ return !sorttv.status.scaning }, sorttv, 'scan-end' )
     .then( sorttv.sort )
 
-    .trueOrWait(function(){ return kodi.status.scaning }, kodi, 'scan-end' )
+    .trueOrWait(function(){ return !kodi.status.scaning }, kodi, 'scan-end' )
     .then( kodi.scan )
 
 }
