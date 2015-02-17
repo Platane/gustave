@@ -1,12 +1,8 @@
 var xml2js = require('xml2js').parseString
   , request = require('request')
   , Promise = require('promise')
+  , Abstract = require('./abstract')
 
-
-var timeStamp = function( d ){
-    d = new Date( d || Date.now() )
-    return d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()+' '+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear()
-}
 
 
 var trReq = function( req, retry ){
@@ -69,12 +65,12 @@ var mergeTorrents = function( a, b ){
             if( torrentMatch( b[i], a[j] ) ) {
                 has_been_peered[j] = true
 
-                if( a[j].status != b[i].status ) {
-                    a[j].status = b[i].status
-                    updated.push( a )
-                }
-                break
+            if( a[j].status != b[i].status ) {
+                a[j].status = b[i].status
+                updated.push( a )
             }
+            break
+        }
         if( j<0 ) {
             added.push( b[i] )
             a.push( b[i] )
@@ -85,6 +81,8 @@ var mergeTorrents = function( a, b ){
         if(!has_been_peered[i])
             removed.push( a.splice(i,1)[0] )
 
+    // TODO dispatch events
+
     return {
         updated: updated,
         removed: removed,
@@ -94,14 +92,17 @@ var mergeTorrents = function( a, b ){
 
 
 var init = function( config ){
+
+    Abstract.init.call( this )
+
     this.torrents = []
     this.config = config
 
     this.status = {
         global_up:0,  // B/s
-        global_down:0
+        global_down:0,
+        paused: false
     }
-    this.state = 'started'
 
     return this
 }
@@ -110,9 +111,9 @@ var refreshTorrentList = function(){
     return trReq.call(this,{
         "arguments": {
             "fields": [
-                "id",
-                "name",
-                "status"
+            "id",
+            "name",
+            "status"
             ]
         },
         "method": "torrent-get"
@@ -152,7 +153,6 @@ var hasTorrent = function( torrent ){
     return i>=0
 }
 var addTorrent = function( torrent ){
-    console.log( 'add '+torrent.name )
     return trReq.call(this,{
         "method": "torrent-add",
         "arguments" : {
@@ -161,28 +161,26 @@ var addTorrent = function( torrent ){
     })
 }
 var pauseAll = function(){
-    console.log('--- transmission pause '+timeStamp())
     var that = this
     return trReq.call(this,{
         "method": "torrent-stop"
     })
     .then(function(){
-        that.state = 'paused'
+        that.status.paused = true
     })
 }
 var startAll = function(){
-    console.log('--- transmission restart '+timeStamp())
     var that = this
     return trReq.call(this,{
         "method": "torrent-start"
     })
     .then(function(){
-        that.state = 'started'
+        that.status.paused = false
     })
 }
 
 
-module.exports = {
+module.exports = Abstract.extend({
     init: init,
 
     refreshTorrentList: refreshTorrentList,
@@ -193,4 +191,4 @@ module.exports = {
 
     pauseAll: pauseAll,
     startAll: startAll
-}
+})

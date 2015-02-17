@@ -1,10 +1,10 @@
 {
   "name": "gustave",
-  "version": "0.1.0",
+  "version": "2.0.0",
 
   "description": "gustave the majordome",
 
-  "author": "Platane <me@platane.me>",
+  "author": "Platane",
 
   "dependencies": {
     "promise" : "*",
@@ -16,7 +16,6 @@
    },
 
     "devDependencies" : {
-        "jasmine-node" : "git://github.com/mhevery/jasmine-node.git#Jasmine2.0",
         "browserify" : "*",
         "less" :"*",
         "gulp" : "*",

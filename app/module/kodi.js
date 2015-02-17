@@ -1,21 +1,23 @@
-var Promise = require('promise')
+var Abstract = require('abstract')
   , io = require('socket.io-client')
-  , eventEmitter = require('events').EventEmitter
-
 
 var init = function( config ){
-
-    eventEmitter.call( this )
-    for( var i in eventEmitter )
-      this[ i ] = eventEmitter[ i ]
+    Abstract.init.call( this )
 
     var uri = 'http://'+config.host+':'+config.port+'/jsonrpc'
 
     this.socket = io( uri )
 
-
     this.socket
     .on('VideoLibrary.OnUpdate', relayEvent.bind( this, 'VideoLibrary.OnUpdate') )
+    .on('VideoLibrary.OnScanFinished', function(){
+        this.status.scanning = false
+        this.dispatch( 'scan-end' )
+    }.bind( this ) )
+    .on('VideoLibrary.OnScanStarted', function(){
+        this.status.scanning = true
+        this.dispatch( 'scan-start' )
+    }.bind( this ) )
 
     return this
 }
@@ -28,8 +30,8 @@ var relayEvent = function( eventName, data ){
 }
 
 
-
-module.exports = {
+module.exports = Object.create( Abstract )
+.extend({
     init: init,
     scan: scan
-}
+})
