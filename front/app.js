@@ -33,14 +33,14 @@ dom.bind( button, 'click', function(){
     tr_model.stop();
 })
 tr_model.listen(function(){
-    if( !tr_model.status.planned_restart ) {
+    if( !tr_model.status.timer.paused ) {
         dom.removeClass( button, 'paused' )
         explaination.innerHTML = '<p>click the button to stop the transfert for one hour</p>'
     }
     else
     {
         dom.addClass( button, 'paused' )
-        var min = Math.round( (tr_model.status.planned_restart-Date.now()) / 60000 )
+        var min = Math.round( (tr_model.status.timer.resume_in) / 60000 )
         explaination.innerHTML = '<p>The transfert is currently paused, it will restart in '+min+' minutes</p><p>click the button to stop the transfert for one hour more</p>'
     }
 
@@ -50,10 +50,10 @@ scanNow.addEventListener('click',function(){
     transport.get('/kodi/scan')
 })
 tr_model.listen(function(){
-    metrics.innerHTML = 'speed: '+bigNumber(tr_model.status.global_up)+'B/s up   -   '+bigNumber(tr_model.status.global_down)+'B/s down'
+    metrics.innerHTML = 'speed: '+bigNumber(tr_model.status.transmission.global_up)+'B/s up   -   '+bigNumber(tr_model.status.transmission.global_down)+'B/s down'
 })
 tr_model.listen(function(){
-    scanState.innerHTML = tr_model.status.scanState
+    scanState.innerHTML = 'sorttv : '+tr_model.status.sorttv.scanning+'<br></br>kodi : '+tr_model.status.kodi.scanning
 })
 
 

@@ -1,4 +1,4 @@
-var ee = require('Events').EventEmitter
+var ee = require('events').EventEmitter
   , Abstract = require('../util/abstract')
 
 var init = function(){

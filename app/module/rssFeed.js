@@ -3,9 +3,12 @@ var xml2js = require('xml2js')
   , Promise = require('promise')
   , Abstract = require('./abstract')
 
-var init = function(){
+var init = function(  ){
     Abstract.init.call( this )
-    this.status.scanning = false
+    this.status = {
+        scanning : false
+    }
+    return this
 }
 var get = function( url ){
     return new Promise(function(resolve, reject){
@@ -66,31 +69,36 @@ var scan = (function(){
         },[])
     }
 
-    // dispatch event
-    var dispatch = function( list ){
-        list.forEach( this.dispatch.bind( this, 'torrent' ))
+    // emit event
+    var emit = function( list ){
+        list.forEach( this.emit.bind( this, 'torrent' ))
     }
 
     return function( _rss ){
 
         var that = this
+        that.status.scanning = true
+
         var arr = _rss.reduce(function(prev, url){
             var p = get( url )
             .then( extractList )
-            .then( dispatch.bind( that ) )
+            .then( emit.bind( that ) )
 
             prev.push( p )
             return prev
         })
 
         return Promise.all( arr )
+        .then(function(){
+            that.status.scanning = false
+        })
     }
 
 })()
 
 
-
-module.exports = Abstract.extend({
+module.exports = Object.create( Abstract )
+.extend({
     init : init,
     scan : scan
 })

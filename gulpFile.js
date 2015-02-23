@@ -6,9 +6,43 @@ var gulp = require('gulp')
   , autoprefixer = require('gulp-autoprefixer')
   , less =require('less')
   , Stream = require('stream').Stream
+  , child_process = require('child_process')
+  , Promise = require('promise')
+  , fs = require('fs')
 
 
+var exec = function( cmd ){
+  return new Promise( function(resolve, reject){
+      child_process.exec( cmd, function(err, out, code){
+          if( err )
+              reject({
+                  err: err,
+                  code: code,
+                  cmd: cmd
+              })
+          resolve( out )
+      })
+  })
+}
 
+
+var host = 'pi@192.168.1.5'
+
+gulp.task('copy.front', function () {
+    return exec('scp ./front/bundle.js '+host+':~/gustave/front/bundle.js')
+    .then( exec('scp ./front/bundle.css '+host+':~/gustave/front/bundle.css') )
+    .then( exec('scp ./front/index.html '+host+':~/gustave/front/index.html') )
+    .then( exec('scp ./package.json '+host+':~/gustave/package.json') )
+    .then( exec('scp ./config.json '+host+':~/gustave/config.json') )
+})
+gulp.task('copy.app', function () {
+    return exec('scp -r ./app '+host+':~/gustave/')
+})
+gulp.task('copy.config', function () {
+    return exec('scp ./package.json '+host+':~/gustave/package.json')
+    .then( exec('scp ./config.json '+host+':~/gustave/config.json') )
+})
+gulp.task('copy', ['copy.app', 'copy.config', 'copy.front' ] )
 
 gulp.task('browserify', function () {
     exec(
@@ -77,11 +111,14 @@ gulp.task('less', function () {
 
 gulp.task('watch', function () {
 
-	gulp.watch( ['./front/**/*.less'] , ['less'] )
+    gulp.watch( ['./app/**/*.js'] , ['copy.app'] )
 
-	gulp.watch( ['./front/**/*.js', '!./front/bundle.js'] , ['browserify'] )
+	gulp.watch( ['./front/**/*.less'] , ['less', 'copy.front'] )
+
+	gulp.watch( ['./front/**/*.js', '!./front/bundle.js'] , ['browserify', 'copy.front'] )
 
 });
 
+gulp.task('build', [ 'browserify' , 'less'] );
 
-gulp.task('default', [ 'browserify' , 'less' , 'watch' ]);
+gulp.task('default', [ 'browserify' , 'less' , 'copy' , 'watch' ]);

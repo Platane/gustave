@@ -106,7 +106,7 @@ var init = function( config ){
 
     return this
 }
-var refreshTorrentList = function(){
+var updateTorrentList = function(){
     var that = this
     return trReq.call(this,{
         "arguments": {
@@ -122,7 +122,7 @@ var refreshTorrentList = function(){
         return mergeTorrents( that.torrents, res.arguments.torrents )
     })
 }
-var refreshStatus = function(){
+var updateStatus = function(){
     var that = this
     return trReq.call(this,{
         "arguments": {
@@ -180,11 +180,12 @@ var startAll = function(){
 }
 
 
-module.exports = Abstract.extend({
+module.exports = Object.create( Abstract )
+.extend({
     init: init,
 
-    refreshTorrentList: refreshTorrentList,
-    refreshStatus: refreshStatus,
+    updateTorrentList: updateTorrentList,
+    updateStatus: updateStatus,
 
     hasTorrent: hasTorrent,
     addTorrent: addTorrent,

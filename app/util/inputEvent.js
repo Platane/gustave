@@ -1,7 +1,7 @@
 var Promise = require('promise')
 
 var errorHandling = function( err ){
-    console.log( 'err', err )
+    console.log( 'err', err.stack )
 }
 var onEvent = function( data ){
 
@@ -31,7 +31,7 @@ module.exports = function( ee, eventName ){
 
     var s = Object.create( S ).init()
 
-    var cb = onEvent.bind( this )
+    var cb = onEvent.bind( s )
 
     ee.on( eventName, cb )
 

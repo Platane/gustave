@@ -21,7 +21,6 @@
         "gulp" : "*",
         "gulp-watch" : "*",
         "gulp-autoprefixer" : "*",
-        "gulp-rename" : "*",
-        "gulp-browserify" : "*"
+        "gulp-rename" : "*"
     }
 }

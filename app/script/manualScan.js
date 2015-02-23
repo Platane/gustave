@@ -12,17 +12,17 @@ var enable = function( ){
 
     this.disable()
 
-    var transmission = this.mods.transmission
+    var server = this.mods.server
     var kodi = this.mods.kodi
     var sorttv = this.mods.sorttv
 
-    this._chain = input( transmission, 'download-finished' )
+    this._chain = input( server, 'ask-scan' )
 
-    .then( trueOrWait(function(){ return !sorttv.status.scaning }, sorttv, 'scan-end' ) )
-    .then( sorttv.scan )
+    .then( trueOrWait(function(){ return !sorttv.status.scanning }, sorttv, 'scan-end' ) )
+    .then( sorttv.scan.bind( sorttv ) )
 
-    .then( trueOrWait(function(){ return !kodi.status.scaning }, kodi, 'scan-end' ) )
-    .then( kodi.scan )
+    .then( trueOrWait(function(){ return !kodi.status.scanning }, kodi, 'scan-end' ) )
+    .then( kodi.scan.bind( kodi ) )
 
 }
 var disable = function( ){

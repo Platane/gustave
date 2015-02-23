@@ -1,7 +1,5 @@
 {
-    "port": 3143,
-    "pooling_delay": 3600000,
-    "pause_delay": 3600000,
+    "pause_delay": 36000,
     "transmission" : {
         "host" : "gustave.brongniart.me",
         "port" : 3142,
@@ -15,6 +13,9 @@
     "showRss": {
         "user": "gustave",
         "pass" : "15$'j]W647tG#5d"
+    },
+    "server":{
+        "port": 3143
     },
 
     "RSS": [
